@@ -1,16 +1,50 @@
 import { useState } from "react";
 import "./App.css";
+import Weather from "./Weather";
 
 function App() {
   const [cityName, setCityName] = useState("");
   const [countryName, setCountryName] = useState("");
+  const [weatherData, setWeatherData] = useState({
+    name: "",
+    country: "",
+    weather: "",
+    weather_description: "",
+    temp_max: "",
+    temp_min: "",
+    humidity: ""
+  });
 
-  const handleChangeCityName = () => {
-    console.log("city name change");
+  const handleChangeCityName = e => {
+    setCityName(e.target.value);
   };
 
-  const handleChangeCountryName = () => {
-    console.log("country name change");
+  const handleChangeCountryName = e => {
+    setCountryName(e.target.value);
+  };
+
+  const handleClearButton = () => {
+    setCityName("");
+    setCountryName("");
+  };
+
+  const handleSearchButton = city => {
+    Weather.getWeatherData(city).then(respond => {
+      if (respond.error) {
+        console.log(respond.error);
+      } else {
+        console.log(respond);
+        setWeatherData({
+          name: respond.name,
+          country: respond.sys.country,
+          weather: respond.weather[0].main,
+          weather_description: respond.weather[0].description,
+          temp_max: respond.main.temp_max,
+          temp_min: respond.main.temp_min,
+          humidity: respond.main.humidity
+        });
+      }
+    });
   };
 
   return (
@@ -28,7 +62,7 @@ function App() {
             id="city"
             type="text"
             value={cityName}
-            onChange={handleChangeCityName}
+            onChange={e => handleChangeCityName(e)}
           />
         </div>
         <div>
@@ -40,19 +74,19 @@ function App() {
             id="country"
             type="text"
             value={countryName}
-            onChange={handleChangeCountryName}
+            onChange={e => handleChangeCountryName(e)}
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <button
             className="bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-md"
-            onClick={console.log("click 1")}
+            onClick={() => handleSearchButton(cityName)}
           >
             Search
           </button>
           <button
             className="bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-md"
-            onClick={console.log("click 2")}
+            onClick={() => handleClearButton()}
           >
             Clear
           </button>
