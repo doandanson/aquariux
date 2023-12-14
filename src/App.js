@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import Weather from "./Weather";
+import moment from "moment";
 
 function App() {
   const [cityName, setCityName] = useState("");
@@ -18,7 +19,6 @@ function App() {
   const [weatherDataErrors, setWeatherDataErrors] = useState("");
 
   const [weatherDataHistories, setWeatherDataHistories] = useState([]);
-  const [currentWeatherData, setCurrentWeatherData] = useState({});
 
   const handleChangeCityName = e => {
     setCityName(e.target.value);
@@ -43,11 +43,26 @@ function App() {
     });
   };
 
-  const historyLog = () => {
-    
+  const historyLog = (cityData) => {
+    const currentWeatherData = {
+      city: cityData.name,
+      country: cityData.sys.country,
+      time: moment().format('h:mm:ss a'),
+    }
+
+    setWeatherDataHistories([...weatherDataHistories, currentWeatherData]);
   }
 
   const handleSearchButton = city => {
+    setWeatherData({
+      city: "",
+      country: "",
+      weather: "",
+      weather_description: "",
+      temp_max: "",
+      temp_min: "",
+      humidity: ""
+    });
     Weather.getWeatherData(city).then(respond => {
       if (respond.error) {
         setWeatherDataErrors(respond.error);
@@ -62,6 +77,8 @@ function App() {
           temp_min: respond.main.temp_min,
           humidity: respond.main.humidity
         });
+
+        historyLog(respond);
       }
     });
   };
@@ -71,7 +88,7 @@ function App() {
       <div className="Header py-2 w-full border-b-2 border-black ">
         <h1 className="App-title text-left font-bold">Today's Weather</h1>
       </div>
-      <div className="Search-box py-4 w-full flex flex-row justify-start space-x-4">
+      <div className="Search-box py-4 w-full flex flex-row justify-start items-center space-x-4">
         <div>
           <label htmlFor="city" className="font-bold">
             City:{" "}
@@ -96,7 +113,7 @@ function App() {
             onChange={e => handleChangeCountryName(e)}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <button
             className="bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-md"
             onClick={() => handleSearchButton(cityName)}
@@ -109,6 +126,12 @@ function App() {
           >
             Clear
           </button>
+          <button
+            className="bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-md"
+            onClick={() => console.log(weatherDataHistories)}
+          >
+            test
+          </button>
         </div>
       </div>
       <div className="Weather-info-wrapper py-4 w-full flex flex-column justify-start">
@@ -120,7 +143,7 @@ function App() {
             </div>
           : <></>}
         {
-          weatherData.name ? <div className="Weather-info-box text-left">
+          weatherData.city ? <div className="Weather-info-box text-left">
           <p className="text-sm text-slate-500">
             {weatherData.city}, {weatherData.country}
           </p>
@@ -139,6 +162,33 @@ function App() {
         </div> : <></>
         }
       </div>
+      {
+        weatherDataHistories.length > 0 ? 
+        <>
+          <div className="History-title py-2 w-full border-b-2 border-black ">
+            <h1 className="App-title text-left font-bold">Search History</h1>
+          </div>
+          <div className="History-list flex flex-col w-full items-center">
+          {weatherDataHistories.map((weatherData, index) => {
+            return (
+              <div key={index} className="History-item flex flex-row w-full borber-b-2 border-slate-400 py-2 justify-between">
+                <p>{weatherData && weatherData.city}, {weatherData && weatherData.country}</p>
+                <div className="Button-group flex flex-row space-x-3">
+                  <p>{weatherData.time}</p>
+                  <button
+                    className="bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-md"
+                    onClick={() => handleSearchButton(weatherData.city)}
+                  >
+                    Search
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+          </div>
+        </> :
+        <></>
+      }
     </div>
   );
 }
