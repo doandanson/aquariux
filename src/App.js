@@ -83,6 +83,10 @@ function App() {
     });
   };
 
+  const handleDeleteHistory = (index) => {
+    setWeatherDataHistories((prevState) => prevState.filter((item, i) => i !== index))
+  }
+
   return (
     <div className="App flex flex-col p-5">
       <div className="Header py-2 w-full border-b-2 border-black ">
@@ -180,6 +184,12 @@ function App() {
                     onClick={() => handleSearchButton(weatherData.city)}
                   >
                     Search
+                  </button>
+                  <button
+                    className="bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-md"
+                    onClick={() => handleDeleteHistory(index)}
+                  >
+                    Delete
                   </button>
                 </div>
               </div>
