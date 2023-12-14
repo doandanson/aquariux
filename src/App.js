@@ -6,7 +6,7 @@ function App() {
   const [cityName, setCityName] = useState("");
   const [countryName, setCountryName] = useState("");
   const [weatherData, setWeatherData] = useState({
-    name: "",
+    city: "",
     country: "",
     weather: "",
     weather_description: "",
@@ -14,6 +14,11 @@ function App() {
     temp_min: "",
     humidity: ""
   });
+
+  const [weatherDataErrors, setWeatherDataErrors] = useState("");
+
+  const [weatherDataHistories, setWeatherDataHistories] = useState([]);
+  const [currentWeatherData, setCurrentWeatherData] = useState({});
 
   const handleChangeCityName = e => {
     setCityName(e.target.value);
@@ -26,16 +31,30 @@ function App() {
   const handleClearButton = () => {
     setCityName("");
     setCountryName("");
+    setWeatherDataErrors("");
+    setWeatherData({
+      city: "",
+      country: "",
+      weather: "",
+      weather_description: "",
+      temp_max: "",
+      temp_min: "",
+      humidity: ""
+    });
   };
+
+  const historyLog = () => {
+    
+  }
 
   const handleSearchButton = city => {
     Weather.getWeatherData(city).then(respond => {
       if (respond.error) {
-        console.log(respond.error);
+        setWeatherDataErrors(respond.error);
       } else {
-        console.log(respond);
+        setWeatherDataErrors("");
         setWeatherData({
-          name: respond.name,
+          city: respond.name,
           country: respond.sys.country,
           weather: respond.weather[0].main,
           weather_description: respond.weather[0].description,
@@ -91,6 +110,34 @@ function App() {
             Clear
           </button>
         </div>
+      </div>
+      <div className="Weather-info-wrapper py-4 w-full flex flex-column justify-start">
+        {weatherDataErrors
+          ? <div className="Weather-info-error border-2 border-red-700 bg-red-300 w-full">
+              <p className="text-black text-left p-2">
+                {weatherDataErrors}
+              </p>
+            </div>
+          : <></>}
+        {
+          weatherData.name ? <div className="Weather-info-box text-left">
+          <p className="text-sm text-slate-500">
+            {weatherData.city}, {weatherData.country}
+          </p>
+          <h1 className="font-bold text-6xl pb-5">
+            {weatherData.weather}
+          </h1>
+          <p className="text-sm text-slate-500">
+            Description: {weatherData.weather_description}
+          </p>
+          <p className="text-sm text-slate-500">
+            Tempature: {weatherData.temp_max}°C ~ {weatherData.temp_min}°C
+          </p>
+          <p className="text-sm text-slate-500">
+            Humidity: {weatherData.humidity}%
+          </p>
+        </div> : <></>
+        }
       </div>
     </div>
   );

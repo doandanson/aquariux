@@ -7,6 +7,9 @@ const getWeatherData = async (city, country) => {
     const data = await respond.json();
 
     if ((data.cod = "200")) {
+      if (data.message) {
+        throw new Error(`${data.message}`);
+      }
       return data;
     } else {
       throw new Error(`Error: ${data.message}`);
