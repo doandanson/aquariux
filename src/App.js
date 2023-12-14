@@ -63,24 +63,33 @@ function App() {
       temp_min: "",
       humidity: ""
     });
-    Weather.getWeatherData(city).then(respond => {
-      if (respond.error) {
-        setWeatherDataErrors(respond.error);
-      } else {
-        setWeatherDataErrors("");
-        setWeatherData({
-          city: respond.name,
-          country: respond.sys.country,
-          weather: respond.weather[0].main,
-          weather_description: respond.weather[0].description,
-          temp_max: respond.main.temp_max,
-          temp_min: respond.main.temp_min,
-          humidity: respond.main.humidity
-        });
-
-        historyLog(respond);
-      }
-    });
+    if (cityName && countryName) {
+      setWeatherDataErrors("please only input either city or country");
+    } else {
+      let param = ""
+      if (cityName) {
+        param = cityName
+      } else 
+      param = countryName
+      Weather.getWeatherData(param).then(respond => {
+        if (respond.error) {
+          setWeatherDataErrors(respond.error);
+        } else {
+          setWeatherDataErrors("");
+          setWeatherData({
+            city: respond.name,
+            country: respond.sys.country,
+            weather: respond.weather[0].main,
+            weather_description: respond.weather[0].description,
+            temp_max: respond.main.temp_max,
+            temp_min: respond.main.temp_min,
+            humidity: respond.main.humidity
+          });
+  
+          historyLog(respond);
+        }
+      });
+    }
   };
 
   const handleDeleteHistory = (index) => {
@@ -89,11 +98,11 @@ function App() {
 
   return (
     <div className="App flex flex-col p-5">
-      <div className="Header py-2 w-full border-b-2 border-black ">
+      <div className="Header py-2 w-full border-b-2 border-black">
         <h1 className="App-title text-left font-bold">Today's Weather</h1>
       </div>
-      <div className="Search-box py-4 w-full flex flex-row justify-start items-center space-x-4">
-        <div>
+      <div className="Search-box container py-4 flex flex-col md:flex-row justify-items-start items-start md:items-center md:space-x-4">
+        <div className="pb-3">
           <label htmlFor="city" className="font-bold">
             City:{" "}
           </label>
@@ -105,7 +114,7 @@ function App() {
             onChange={e => handleChangeCityName(e)}
           />
         </div>
-        <div>
+        <div className="pb-3">
           <label htmlFor="country" className="font-bold">
             Country:{" "}
           </label>
@@ -117,7 +126,7 @@ function App() {
             onChange={e => handleChangeCountryName(e)}
           />
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4 pb-3 self-center">
           <button
             className="bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-md"
             onClick={() => handleSearchButton(cityName)}
@@ -130,15 +139,9 @@ function App() {
           >
             Clear
           </button>
-          <button
-            className="bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-md"
-            onClick={() => console.log(weatherDataHistories)}
-          >
-            test
-          </button>
         </div>
       </div>
-      <div className="Weather-info-wrapper py-4 w-full flex flex-column justify-start">
+      <div className="Weather-info-wrapper py-4 w-full flex flex-col justify-start">
         {weatherDataErrors
           ? <div className="Weather-info-error border-2 border-red-700 bg-red-300 w-full">
               <p className="text-black text-left p-2">
@@ -172,10 +175,10 @@ function App() {
           <div className="History-title py-2 w-full border-b-2 border-black ">
             <h1 className="App-title text-left font-bold">Search History</h1>
           </div>
-          <div className="History-list flex flex-col w-full items-center">
+          <div className="History-list flex flex-col w-full items-center ">
           {weatherDataHistories.map((weatherData, index) => {
             return (
-              <div key={index} className="History-item flex flex-row w-full borber-b-2 border-slate-400 py-2 justify-between">
+              <div key={index} className="History-item flex flex-row w-full py-2 justify-between border-b-2 border-slate-300">
                 <p>{weatherData && weatherData.city}, {weatherData && weatherData.country}</p>
                 <div className="Button-group flex flex-row space-x-3">
                   <p>{weatherData.time}</p>
